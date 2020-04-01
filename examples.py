@@ -132,8 +132,8 @@ def sendamessage(phone, msg):
 if __name__=="__main__":
     #### Utility functions
     findaddons()
-    testnumbers(listofphonenumbers=['14437669188', '14437669053'])
-    sendamessage("14437669188",
+    testnumbers(listofphonenumbers=['', ''])
+    sendamessage("enterphonenumber",
                  "This is a test of the COVID-19 messaging system.")
     #################
     ## Process to validate mobile phone text file
