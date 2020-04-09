@@ -14,6 +14,7 @@ class TwilioAPI():
         self.TWILIO_AUTH_TOKEN = twilioconfig["TWILIO_AUTH_TOKEN"]
         self.TWILIO_PHONENUMBER = twilioconfig["TWILIO_PHONENUMBER"]
         self.TWILIO_PHONENUMBER_ALPHA = twilioconfig["TWILIO_PHONENUMBER_ALPHA"]
+        self.TWILIO_FLOW_SID = twilioconfig["TWILIO_FLOW_SID"]
 
 
     def add_ons_available(self):
@@ -116,3 +117,89 @@ class TwilioAPI():
     #         # logger.info('Exception occurred: {} '.format(e))
     #         print('Exception occurred: {} '.format(e))
     #         return False
+
+    #######################################################
+    #  Functions supporting Studio Flow
+    #######################################################
+    def studio_execute_flow(self, numbertocall, params):
+        """
+        Triggers a Twilio Studio Flow
+
+        :param numbertocall: phone number: formatted as E.164 formatting "+11231234567"
+        :param params: additional parameters to use in the Twilio Flow
+        :return: Results of the FLOW execution
+        """
+        client = Client(self.TWILIO_ACCOUNT_SID, self.TWILIO_AUTH_TOKEN)
+
+        #Use a parameter for which Twilio Flow to execute
+        try:
+            execution = client.studio.v1\
+                .flows(self.TWILIO_FLOW_SID)\
+                .executions\
+                .create(to=numbertocall, from_=self.TWILIO_PHONENUMBER,
+                        parameters=params)
+            return execution
+        except TwilioRestException as e:
+            print("Exceptiono occurred: code: {} msg: {}".format(e.code, e.msg))
+            return False
+
+    def fetch_execution(self,execution_sid):
+        """
+        Return an single execution that was performed by a FLOW
+        :param sid: specific flow sid of an executed FLOW
+        :return: results of the flows execution
+        """
+        client = Client(self.TWILIO_ACCOUNT_SID, self.TWILIO_AUTH_TOKEN)
+
+        try:
+            #Use a parameter for which Twilio Flow to execute
+            execution = client.studio.v1\
+                .flows(self.TWILIO_FLOW_SID)\
+                .executions(execution_sid)\
+                .fetch()
+            return execution
+        except TwilioRestException as e:
+            print("Exceptiono occurred: code: {} msg: {}".format(e.code, e.msg))
+            return False
+
+    def fetch_executioncontext(self,execution_sid):
+        """
+        Return the context of an execution instead of an executed FLOW
+        :param sid: specific flow sid of an executed FLOW
+        :return: results of the flows execution
+        """
+        client = Client(self.TWILIO_ACCOUNT_SID, self.TWILIO_AUTH_TOKEN)
+
+        try:
+            #Use a parameter for which Twilio Flow to execute
+            execution_context = client.studio.v1\
+                .flows(self.TWILIO_FLOW_SID)\
+                .executions(execution_sid)\
+                .execution_context()\
+                .fetch()
+            return execution_context
+        except TwilioRestException as e:
+            print("Exceptiono occurred: code: {} msg: {}".format(e.code, e.msg))
+            return False
+
+    def fetch_stepcontext(self,execution_sid, step_sid):
+        """
+        Return the context of a specific step
+        :param execution_sid: specific flow sid of an executed FLOW
+        :param step_sid: specific step side
+        :return: results of the flows step
+        """
+        client = Client(self.TWILIO_ACCOUNT_SID, self.TWILIO_AUTH_TOKEN)
+
+        try:
+            #Use a parameter for which Twilio Flow to execute
+            step_context = client.studio.v1\
+                .flows(self.TWILIO_FLOW_SID)\
+                .executions(execution_sid)\
+                .steps(step_sid)\
+                .step_context()\
+                .fetch()
+            return step_context
+        except TwilioRestException as e:
+            print("Exception occurred: code: {} msg: {}".format(e.code, e.msg))
+            return False
